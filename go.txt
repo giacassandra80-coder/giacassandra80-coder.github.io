@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>gotoshow</title>
+</head>
+<body>
+    <script>
+        // 定义5个目标地址，自行修改
+        const urlList = [
+            "https://",
+            "https://",
+            "https://",
+            "https://",
+            "https://"
+        ];
+
+        // 随机取一个下标
+        const randomIndex = Math.floor(Math.random() * urlList.length);
+        const targetUrl = urlList[randomIndex];
+
+        // 原地跳转，无弹窗拦截
+        window.location.href = targetUrl;
+    </script>
+</body>
+</html>
