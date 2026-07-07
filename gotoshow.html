@@ -1,1 +1,52 @@
-gotoshowgotoshowgotoshow
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 安卓强制适配，禁止缩放 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>页面加载中...</title>
+    <style>
+        body {
+            text-align: center;
+            padding-top: 50px;
+            font-size: 16px;
+            color: #333;
+        }
+        .tips {
+            margin-top: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h3>页面加载中，即将自动跳转...</h3>
+    <p class="tips">若未自动跳转，请点击下方链接</p>
+    <a id="skipLink" href="" style="font-size:18px;color:#0066cc;">立即访问</a>
+
+    <script>
+        // 这里填写你的5个目标域名，可自行修改
+        const domainList = [
+            "https://app1.bipinhui.shop",
+            "https://app2.bipinhui.shop",
+            "https://app3.bipinhui.shop",
+            "https://app4.bipinhui.shop",
+            "https://app5.bipinhui.shop"
+        ];
+
+        // 随机抽取一个域名
+        function getRandomDomain() {
+            const randomIndex = Math.floor(Math.random() * domainList.length);
+            return domainList[randomIndex];
+        }
+
+        const targetUrl = getRandomDomain();
+        // 给手动跳转链接赋值
+        document.getElementById('skipLink').href = targetUrl;
+
+        // 延迟800ms跳转（太短容易被拦截，安卓推荐600-1000ms）
+        setTimeout(function(){
+            window.location.href = targetUrl;
+        }, 800);
+    </script>
+</body>
+</html>
