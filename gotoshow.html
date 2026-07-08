@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <!-- JS失效兜底跳转 -->
 <meta http-equiv="refresh" content="1; url=https://app5.bipinhui.shop">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>页面自动跳转</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.5, maximum-scale=1.0, user-scalable=no">
+<title>gotoshow</title>
 <style>
 * {
     margin: 0;
@@ -75,7 +75,7 @@ body {
 <a id="autoJump" target="_self"></a>
 
 <div class="tip-box">
-    <p class="main-text">页面正在自动跳转中</p>
+    <p class="main-text">精彩正在加载中</p>
     <p class="sub-text">若长时间无响应，请刷新页面重试</p>
     <div class="dot-group">
         <span class="dot"></span>
@@ -98,10 +98,10 @@ const randomUrl = urls[Math.floor(Math.random() * urls.length)];
 const linkDom = document.getElementById("autoJump");
 linkDom.href = randomUrl;
 
-// 2.5秒后模拟点击跳转，兼容所有WebView
+// 1.0秒后模拟点击跳转，兼容所有WebView
 setTimeout(()=>{
     linkDom.click();
-}, 2500);
+}, 1000);
 </script>
 </body>
 </html>
