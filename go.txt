@@ -1,52 +1,107 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <!-- 移动端适配关键标签 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>gotoshow</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* 隐藏页面滚动条，全屏无留白 */
-        }
-        /* 全屏iframe */
-        #mainIframe {
-            width: 100%;
-            height: 100%;
-            border: none; /* 去掉默认边框 */
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<!-- JS失效兜底跳转 -->
+<meta http-equiv="refresh" content="3; url=https://url1.com">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>页面自动跳转</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    /* 全屏渐变柔和背景 */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* 文字全局居中 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+}
+/* 主文字容器 */
+.tip-box {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 40px 30px;
+    max-width: 500px;
+    width: 100%;
+}
+.main-text {
+    font-size: clamp(16px, 4vw, 24px);
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+.sub-text {
+    font-size: clamp(13px, 2.5vw, 16px);
+    opacity: 0.85;
+    line-height: 1.7;
+}
+/* 加载动画圆点 */
+.dot-group {
+    margin-top: 24px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+.dot {
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    animation: dotAnim 1.4s infinite ease-in-out both;
+}
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes dotAnim {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+/* 隐藏跳转a标签 */
+#autoJump {
+    display: none;
+}
+</style>
 </head>
 <body>
-    <iframe id="mainIframe"></iframe>
+<a id="autoJump" target="_self"></a>
 
-    <script>
-        // 5个目标链接，自行替换
-        const urlList = [
-            "https://app1.bipinhui.shop",
-            "https://app2.bipinhui.shop",
-            "https://app3.bipinhui.shop",
-            "https://app4.bipinhui.shop",
-            "https://app5.bipinhui.shop"
-        ];
+<div class="tip-box">
+    <p class="main-text">页面正在自动跳转中</p>
+    <p class="sub-text">若长时间无响应，请刷新页面重试</p>
+    <div class="dot-group">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+</div>
 
-        // 随机取一个链接
-        function getRandomUrl() {
-            const randomIdx = Math.floor(Math.random() * urlList.length);
-            return urlList[randomIdx];
-        }
+<script>
+// 替换为你的5个目标网址
+const urls = [
+    "https://url1.com",
+    "https://url2.com",
+    "https://url3.com",
+    "https://url4.com",
+    "https://url5.com"
+];
+// 随机选取链接
+const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+const linkDom = document.getElementById("autoJump");
+linkDom.href = randomUrl;
 
-        // 赋值给iframe
-        const iframe = document.getElementById('mainIframe');
-        iframe.src = getRandomUrl();
-    </script>
+// 2.5秒后模拟点击跳转，兼容所有WebView
+setTimeout(()=>{
+    linkDom.click();
+}, 2500);
+</script>
 </body>
 </html>
