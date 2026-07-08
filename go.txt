@@ -2,51 +2,51 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 安卓强制适配，禁止缩放 -->
+    <!-- 移动端适配关键标签 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>页面加载中...</title>
+    <title>gotoshow</title>
     <style>
-        body {
-            text-align: center;
-            padding-top: 50px;
-            font-size: 16px;
-            color: #333;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .tips {
-            margin-top: 20px;
-            color: #666;
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 隐藏页面滚动条，全屏无留白 */
+        }
+        /* 全屏iframe */
+        #mainIframe {
+            width: 100%;
+            height: 100%;
+            border: none; /* 去掉默认边框 */
+            display: block;
         }
     </style>
 </head>
 <body>
-    <h3>页面加载中，即将自动跳转...</h3>
-    <p class="tips">若未自动跳转，请点击下方链接</p>
-    <a id="skipLink" href="" style="font-size:18px;color:#0066cc;">立即访问</a>
+    <iframe id="mainIframe"></iframe>
 
     <script>
-        // 这里填写你的5个目标域名，可自行修改
-        const domainList = [
-            "https://",
-            "https://",
-            "https://",
-            "https://",
-            "https://"
+        // 5个目标链接，自行替换
+        const urlList = [
+            "https://app1.bipinhui.shop",
+            "https://app2.bipinhui.shop",
+            "https://app3.bipinhui.shop",
+            "https://app4.bipinhui.shop",
+            "https://app5.bipinhui.shop"
         ];
 
-        // 随机抽取一个域名
-        function getRandomDomain() {
-            const randomIndex = Math.floor(Math.random() * domainList.length);
-            return domainList[randomIndex];
+        // 随机取一个链接
+        function getRandomUrl() {
+            const randomIdx = Math.floor(Math.random() * urlList.length);
+            return urlList[randomIdx];
         }
 
-        const targetUrl = getRandomDomain();
-        // 给手动跳转链接赋值
-        document.getElementById('skipLink').href = targetUrl;
-
-        // 延迟800ms跳转（太短容易被拦截，安卓推荐600-1000ms）
-        setTimeout(function(){
-            window.location.href = targetUrl;
-        }, 800);
+        // 赋值给iframe
+        const iframe = document.getElementById('mainIframe');
+        iframe.src = getRandomUrl();
     </script>
 </body>
 </html>
