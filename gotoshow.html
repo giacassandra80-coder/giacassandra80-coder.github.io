@@ -1,52 +1,36 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <!-- 安卓强制适配，禁止缩放 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>页面加载中...</title>
-    <style>
-        body {
-            text-align: center;
-            padding-top: 50px;
-            font-size: 16px;
-            color: #333;
-        }
-        .tips {
-            margin-top: 20px;
-            color: #666;
-        }
-    </style>
+<meta charset="UTF-8">
+<!-- JS失效兜底固定跳转（填5个里任意一个） -->
+<meta http-equiv="refresh" content="3; url=https://app5.bipinhui.shop">
+<title>随机跳转（WebView兼容）</title>
+<style>
+/* 隐藏跳转链接，不显示给用户 */
+#autoJump {display:none;}
+</style>
 </head>
 <body>
-    <h3>页面加载中，即将自动跳转...</h3>
-    <p class="tips">若未自动跳转，请点击下方链接</p>
-    <a id="skipLink" href="" style="font-size:18px;color:#0066cc;">立即访问</a>
+<a id="autoJump" target="_self"></a>
+<script>
+// 5个目标跳转地址，自行替换
+const urls = [
+    "https://app1.bipinhui.shop",
+    "https://app2.bipinhui.shop",
+    "https://app3.bipinhui.shop",
+    "https://app4.bipinhui.shop",
+    "https://app5.bipinhui.shop"
+];
+// 随机取一个地址
+const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+const linkDom = document.getElementById("autoJump");
+linkDom.href = randomUrl;
 
-    <script>
-        // 这里填写你的5个目标域名，可自行修改
-        const domainList = [
-            "https://app1.bipinhui.shop",
-            "https://app2.bipinhui.shop",
-            "https://app3.bipinhui.shop",
-            "https://app4.bipinhui.shop",
-            "https://app5.bipinhui.shop"
-        ];
-
-        // 随机抽取一个域名
-        function getRandomDomain() {
-            const randomIndex = Math.floor(Math.random() * domainList.length);
-            return domainList[randomIndex];
-        }
-
-        const targetUrl = getRandomDomain();
-        // 给手动跳转链接赋值
-        document.getElementById('skipLink').href = targetUrl;
-
-        // 延迟800ms跳转（太短容易被拦截，安卓推荐600-1000ms）
-        setTimeout(function(){
-            window.location.href = targetUrl;
-        }, 800);
-    </script>
+// 延迟执行模拟点击，绕过WebView自动跳转拦截
+setTimeout(()=>{
+    linkDom.click(); // 模拟人工点击a标签，WebView不会拦截
+}, 2500);
+</script>
+<p>页面2.5秒后自动跳转，如长时间无响应请手动刷新</p>
 </body>
 </html>
