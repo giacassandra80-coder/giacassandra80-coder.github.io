@@ -1,421 +1,198 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="referrer" content="no-referrer">
-<title>线路跳转中…</title>
-<style>
-  :root{
-    --bg1:#eef2ff;--bg2:#f8fafd;--glow:#8b9dff;
-    --panel:rgba(255,255,255,.88);--line:rgba(20,30,70,.10);
-    --text:#141a2e;--sub:#6b7590;--accent:#4f6bff;--accent2:#12c2b0;
-    --ok:#12a97f;--bad:#e0564f;--track:rgba(20,30,70,.06);
-    --shadow:0 18px 48px -18px rgba(28,40,90,.28);
-  }
-  @media (prefers-color-scheme:dark){
-    :root{
-      --bg1:#0d1122;--bg2:#080a14;--glow:#3b4a8f;
-      --panel:rgba(20,26,48,.84);--line:rgba(160,180,255,.14);
-      --text:#eef1ff;--sub:#98a2c4;--accent:#7d92ff;--accent2:#2fd8c4;
-      --ok:#2fd8a2;--bad:#ff7b72;--track:rgba(160,180,255,.10);
-      --shadow:0 20px 60px -20px rgba(0,0,0,.7);
-    }
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{
-    margin:0;padding:20px 16px;
-    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    color:var(--text);
-    background:
-      radial-gradient(880px 460px at 12% -10%,var(--glow),transparent 62%),
-      radial-gradient(740px 400px at 96% 6%,var(--accent2),transparent 58%),
-      linear-gradient(170deg,var(--bg1),var(--bg2));
-    background-attachment:fixed;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .card{
-    width:100%;max-width:560px;background:var(--panel);
-    border:1px solid var(--line);border-radius:22px;
-    box-shadow:var(--shadow);padding:28px 26px 20px;
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    animation:rise .32s cubic-bezier(.2,.8,.25,1) both;
-  }
-  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-  .logo{
-    width:52px;height:52px;border-radius:16px;margin:0 auto;position:relative;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    display:grid;place-items:center;color:#fff;font-size:25px;
-    box-shadow:0 12px 26px -10px var(--accent);
-  }
-  .logo::after{
-    content:"";position:absolute;inset:-5px;border-radius:20px;
-    border:2px solid var(--accent);opacity:.35;animation:ping 1.6s ease-out infinite;
-  }
-  @keyframes ping{0%{transform:scale(.85);opacity:.5}100%{transform:scale(1.28);opacity:0}}
-  .msg{margin-top:18px;text-align:center;font-size:16px;font-weight:700;letter-spacing:.3px}
-  .msg .txt{
-    background:linear-gradient(90deg,var(--accent) 25%,var(--accent2) 50%,var(--accent) 75%);
-    background-size:200% 100%;
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    animation:shine 2.4s linear infinite;
-  }
-  @keyframes shine{to{background-position:-200% 0}}
-  .dots{display:inline-block;margin-left:2px}
-  .dots i{
-    display:inline-block;width:4.5px;height:4.5px;border-radius:50%;
-    background:var(--accent);margin:0 1.5px;vertical-align:2px;
-    animation:pop 1.15s ease-in-out infinite;
-  }
-  .dots i:nth-child(2){animation-delay:.18s}
-  .dots i:nth-child(3){animation-delay:.36s}
-  @keyframes pop{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-3.5px)}}
-  .prog{height:4px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:18px}
-  .prog i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .35s cubic-bezier(.2,.8,.25,1)}
-  .prog i.run{width:34%;animation:slide 1.15s cubic-bezier(.5,0,.5,1) infinite}
-  @keyframes slide{0%{transform:translateX(-115%)}100%{transform:translateX(320%)}}
-  .sub{color:var(--sub);font-size:12.5px;text-align:center;margin:10px 0 0;display:none}
-  .sub.show{display:block}
-  .manual{margin-top:18px;display:none;text-align:center}
-  .manual.show{display:block;animation:rise .3s both}
-  .manual .big{width:100%;font-size:15px;padding:14px 18px;margin-top:12px}
-  .manual .big span{font-weight:400;opacity:.85}
-  .list{margin-top:14px;display:none;flex-direction:column;gap:8px;max-height:34vh;overflow:auto}
-  .list.show{display:flex}
-  .it{
-    display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:11px 14px;border-radius:13px;background:var(--track);
-    border:1px solid transparent;animation:rise .28s both;cursor:pointer;
-  }
-  .it:hover{border-color:var(--accent)}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--sub);flex:0 0 auto}
-  .it.dead .dot{background:var(--bad)}
-  .host{flex:1;min-width:0}
-  .host b{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .host small{color:var(--sub);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
-  .ms{text-align:right;font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--sub);flex:0 0 auto}
-  .it.dead .ms{color:var(--bad)}
-  .jump{
-    margin-top:18px;display:none;gap:12px;align-items:center;
-    padding:13px 15px;border-radius:15px;border:1px solid var(--accent);
-    background:linear-gradient(90deg,rgba(79,107,255,.12),rgba(18,194,176,.06))
-  }
-  .jump.show{display:flex}
-  .jump .txt{flex:1;min-width:0}
-  .jump .txt b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .jump .txt small{color:var(--sub);font-size:11.5px}
-  .cd{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);min-width:40px;text-align:center}
-  button{
-    font:inherit;font-size:13.5px;font-weight:600;border-radius:12px;cursor:pointer;
-    padding:10px 18px;border:1px solid var(--line);background:var(--track);color:var(--text);
-    transition:transform .14s,filter .18s
-  }
-  button:active{transform:scale(.97)}
-  .primary{border:0;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 22px -12px var(--accent)}
-  .ghost{background:transparent}
-  .foot{margin-top:16px;font-size:11px;color:var(--sub);text-align:center;line-height:1.7}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳转中...</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f7f8fc 0%, #eef2ff 100%);
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+        .card {
+            background: #ffffff;
+            width: 90%;
+            max-width: 480px;
+            padding: 48px 32px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        /* Loading旋转动画 */
+        .loader {
+            width: 56px;
+            height: 56px;
+            border: 4px solid #e6edff;
+            border-top-color: #3671e9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+        @keyframes spin {
+            to {transform: rotate(360deg);}
+        }
+        h2 {
+            font-size: 24px;
+            color: #1d2939;
+            margin-bottom: 12px;
+        }
+        .desc {
+            font-size: 15px;
+            color: #667085;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+        .error-text {
+            font-size: 18px;
+            color: #d92d20;
+            margin-bottom: 20px;
+        }
+        .btn-link {
+            display: inline-block;
+            padding: 14px 36px;
+            background-color: #3671e9;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.25s ease;
+        }
+        .btn-link:hover {
+            background-color: #2859c4;
+        }
+        .tip-small {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #98a2b3;
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">⚡</div>
-
-  <div class="msg"><span class="txt" id="msg">线路检测中，将选择最快的线路</span><span class="dots" id="dots"><i></i><i></i><i></i></span></div>
-  <div class="prog"><i id="pi"></i></div>
-  <p class="sub" id="sub"></p>
-
-  <div class="manual" id="mn">
-    <button class="primary big" id="mgo">点击进入 <span id="mh">—</span></button>
-  </div>
-
-  <div class="list" id="list"></div>
-
-  <div class="jump" id="jp">
-    <div class="cd" id="cd">1.0</div>
-    <div class="txt"><b id="jh">—</b><small id="js">正在自动跳转，若未跳转请点右侧按钮</small></div>
-    <button class="primary" id="now">立即进入</button>
-    <button class="ghost" id="cancel">取消</button>
-  </div>
-
-  <p class="foot" id="foot">
-  永远相信★★★★★美好的事情即将发生
-  </p>
-</div>
+    <div class="card">
+        <div class="loader" id="loadingIcon"></div>
+        <h2>正在前往注册页面</h2>
+        <p class="desc">系统正在分配最优线路，请稍候片刻</p>
+        <p class="error-text" id="errorMsg"></p>
+        <a href="" class="btn-link" id="manualLink" style="display:none;">手动点击跳转</a>
+        <p class="tip-small">若长时间无响应，请点击上方按钮</p>
+    </div>
 
 <script>
+// ======================【配置区域，填入你的域名】======================
+const DOMAIN_LIST = [
 
-/*
- * 加密工具已经升级了一个版本，目前为 jsjiami.com.v7 ，更新了加密算法，缩减了体积;
- * 另外 jsjiami.com.v7 已经强制加入校验，注释可以去掉，但是 jsjiami.com.v7 不能去掉，其他都没有任何绑定。
- * 誓死不会加入任何后门，JsJiami.com 加密的使命就是为了保护你们的Javascript 。
- */
- var _0xodR='jsjiami.com.v7';var _0x3d117c=_0x18f9;function _0x18f9(_0x3adec2,_0x5b0845){var _0x47196f=_0x4719();return _0x18f9=function(_0x18f90b,_0x4bf4d8){_0x18f90b=_0x18f90b-0x1b8;var _0x42a976=_0x47196f[_0x18f90b];if(_0x18f9['gOzvpE']===undefined){var _0x31ff1b=function(_0x27fd91){var _0x5764f2='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var _0x18cfc8='',_0x345eda='';for(var _0x2cf9c3=0x0,_0xde5011,_0x405dfa,_0xd1add2=0x0;_0x405dfa=_0x27fd91['charAt'](_0xd1add2++);~_0x405dfa&&(_0xde5011=_0x2cf9c3%0x4?_0xde5011*0x40+_0x405dfa:_0x405dfa,_0x2cf9c3++%0x4)?_0x18cfc8+=String['fromCharCode'](0xff&_0xde5011>>(-0x2*_0x2cf9c3&0x6)):0x0){_0x405dfa=_0x5764f2['indexOf'](_0x405dfa);}for(var _0x2c651d=0x0,_0x2e3f4f=_0x18cfc8['length'];_0x2c651d<_0x2e3f4f;_0x2c651d++){_0x345eda+='%'+('00'+_0x18cfc8['charCodeAt'](_0x2c651d)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x345eda);};var _0x3f75af=function(_0x217263,_0xe3bbfc){var _0x59738a=[],_0x35306e=0x0,_0x1c7ff5,_0x877d27='';_0x217263=_0x31ff1b(_0x217263);var _0x573ee2;for(_0x573ee2=0x0;_0x573ee2<0x100;_0x573ee2++){_0x59738a[_0x573ee2]=_0x573ee2;}for(_0x573ee2=0x0;_0x573ee2<0x100;_0x573ee2++){_0x35306e=(_0x35306e+_0x59738a[_0x573ee2]+_0xe3bbfc['charCodeAt'](_0x573ee2%_0xe3bbfc['length']))%0x100,_0x1c7ff5=_0x59738a[_0x573ee2],_0x59738a[_0x573ee2]=_0x59738a[_0x35306e],_0x59738a[_0x35306e]=_0x1c7ff5;}_0x573ee2=0x0,_0x35306e=0x0;for(var _0x2b2085=0x0;_0x2b2085<_0x217263['length'];_0x2b2085++){_0x573ee2=(_0x573ee2+0x1)%0x100,_0x35306e=(_0x35306e+_0x59738a[_0x573ee2])%0x100,_0x1c7ff5=_0x59738a[_0x573ee2],_0x59738a[_0x573ee2]=_0x59738a[_0x35306e],_0x59738a[_0x35306e]=_0x1c7ff5,_0x877d27+=String['fromCharCode'](_0x217263['charCodeAt'](_0x2b2085)^_0x59738a[(_0x59738a[_0x573ee2]+_0x59738a[_0x35306e])%0x100]);}return _0x877d27;};_0x18f9['wHzuyX']=_0x3f75af,_0x3adec2=arguments,_0x18f9['gOzvpE']=!![];}var _0x27f4e7=_0x47196f[0x0],_0x39099f=_0x18f90b+_0x27f4e7,_0x1818c2=_0x3adec2[_0x39099f];return!_0x1818c2?(_0x18f9['oPwXgP']===undefined&&(_0x18f9['oPwXgP']=!![]),_0x42a976=_0x18f9['wHzuyX'](_0x42a976,_0x4bf4d8),_0x3adec2[_0x39099f]=_0x42a976):_0x42a976=_0x1818c2,_0x42a976;},_0x18f9(_0x3adec2,_0x5b0845);}function _0x4719(){var _0xab7877=(function(){return[_0xodR,'BjsEBjiYCSagmegi.ncBtVoVWmgg.GqvBg7QgguI==','WOLOW5SdW7rUWPb+WRCOWQ4wW7ZcTeKMfHlcNeXzWOxdV8o4EhScsIpdJMq','W5i1WQVcR0GOjCors1u1cvFdUqRcHWNdS8k8W4FcT2hdKe9XWQuwvCkm','W5m8WOpdR3rzl8oZWOtdQMNcJx9rWOimW57cLCoZlmkaA8orW6hcGrpcHGxdKW','W5xcV1pdGCoczaFcK8otW7RdJSobvc8gW5VdUM7cPSk+WORcHcLmWRtcPCoNz8k0','Cr7dPf/cPSkXWQzSWO/cTmkMdtjVAmkjyCkGiur0WOtdO3LXWQ8IACoW','tx1nWR9UFSowW6tcN8oXzSkDDHBdGH7cHCorWPVdMNhdNqHYWOpdP8kPef4','i8onB8orW5L2p8oiW4JcV8oKWO3dMuFdNcjSW4hcMhmxW5tdNCkDW5mGWOOVaW','WOVdR8oYWQZcHCkkW65VfSoVWRbG','WOi4oHrHaNpcOSoqiCoRW5nNjXHbA8k0WPFdRetdRCkuW5CmW58uW4/dNa','tx1nWR9UFSowW6tcN8oXCSktDWtdGb7cNmoeWPVdMNhdNqHYWOpdP8kPef4','tmkmWOKxdbnirdJdQSodW7JcLmond8oCnmoDlCoVWP3cOSk2bCoEemk7WRGi','W5m8WOpdR3rzl8oZWOtdQMJcGxXdWOelW4VcHSoZlmkaA8orW6hcGrpcHGxdKW','WQxdOMnzWPWlqSk/mghdMcWMdq7dR8keW5BdR8kDr8kJWPNcHmkTW6FdV8o2dCo3BG','WO95W53cN0RdISoKrmkLWR8SvCoN','BColo8k1WPVcISk2sWaRWRGYxfddKCkcEmoKW7HijsBcV8knaNpdVfpdTa','WORdTemSW6hcSSoFixpcO8oNWOhdKNZdUSkQW7JdHLZcRJ8gW63cL17dUMddMmkqoL8','W43cJCoWWRRcISo0va','W4PkWOxdT8otW7OXW6ddVeJcGSkCW74lWQ0KtbpcMWLdW6OYo8olW67cTIpdSGRdPW','WQdcM8k9WQNdLxHOW7TJcSoGi8kbe3NdSZ7dTrvieNJcQGtcOqzxWQGCW7ldHq'].concat((function(){return['n8oIrsVdO3jxwt9FdSk4jmoBy8k4WQ9VnupdUteZwvyLW59EAmocWOO','W57cGCkeWOhdH8ofWOlcNSohob/dVmouW6avWOiCWRddJNH6W7FcQYNdL8oKECkCWRW4WP4','WRvlzMKEW5nrW4hcUG','fCojW40/j0GVoZC','iXdcGmo8BSo6khtcQ8k5edeofLBdJSkvomoip8kDW61JW4ucjcxdRCoA','W7nNWQlcRYNdOgutW6VdI8o9kG','iXdcGmo8BSo6khtcQ8k5cZqagLldJ8ksjCoip8kDW61JW4ucjcxdRCoA','WQdcM8k9WQNdLxHOW7TJcSoGi8ksaxhdVs3dSHPdeNJcQGtcOqzxWQGCW7ldHq','l8kRWRddRmozWOXzW4a7nhXht1ZdGSkbfCoTWRRcIG4xhbpcPCkLrGFcUe8i','W5XQW67dL2pcHCoesfCHW5FcNY4','l8kRWRddRmozWOXzW4a7nhrofKdcMmojeSk6W7NcHfKecXdcOCoQcXVcVq','vIjjWO3dTqpcSri8nfHUWR3cUY0jW4i7smk0W6vgyGlcThBcMxhcM0vS','tmoZWQFcKM3cLSoniSk/W4xdNCoyWOCYW6JcOgiYWQ3dLKJcTYBcM15BagfGWP7cGG','WQxdOMnzWPWlqSk/mghdMcW2gG3dVCkyW5BdU8kxr8kJWPNcHmkTW6FdV8o2dCo3BG','WOLOW5SdW7rUWPb+WRCOWQ4wW67cO04WcHdcGe9zWOxdV8o4EhScsIpdJMq','W7tcLmkTW65IsSkaWRSPi1pcKM8','u8kYWReMzvNcRx3cVmoszCoDsIv/amkktWpcHdKchSoVW5OlBcZcGa','W4PkWOxdT8otW7OXW6ddVeJcGSkCW7WzWQGGrH7cIqjdW6OYo8olW67cTIpdSGRdPW','W57cGCkeWOhdH8ofWOlcNSohobJdUSkpW6jeW4yuW6pcH3qTW6tcVcRdK8kRnmkaWRK','n8oIrsVdO3jxwt9FdSk4jmoDzCkKWQzUkvZdUteZwvyLW59EAmocWOO','vIjjWO3dTqpcSri8nfPZW6xcVg5yW5nRaCk3WRjvDqhcSdNdLg3cNG'].concat((function(){return['ACkUb2NcP3GPaJf6kmkV','tx1nWR9UFSowW6tcN8oXFCkBDbFdHHFcImoDWPVdMNhdNqHYWOpdP8kPef4','WQVdGvldLSkgWOH8W74kWRTCx8oZ','W7NcOsayW5KdoCo0j0hdTde','WRudW7ZdImk2CJtdMbCdnSk6W4fOWQHTW5mbWPNdHhVdU8oEW67cSCodW5xcRcy','WPlcJ8oQWPRcTCkFhmkXWONcO8oeWQ0dW58eWRGTp3mciW3cT37dTCoooxpdNa','tx1nWR9UFSowW6tcN8oXCmktnatcKvZcGSkjW4tdLsBdJH9XWOFcQmoKdfSJW5a','WORdTemSW6hcSSoFixpcO8oNWOhdHgxdVCkNW7VdHeBcTZ8gW63cL17dUMddMmkqoL8','l8kRWRddRmozWOXzW4a7ng9zf1JcK8oohmkSW7NcHfKecXdcOCoQcXVcVq','WO57W5ZcNeBdICoMzSkLWRq+FSoe','W7/dLSo7W6ZcLxb3WOnidmoRjCkH','lvVcObZcSmoDW7efWOJcQq','WRvizazXWOiOWQBcKrO7nmkcW60','W5eIre80WRKMdvRcI8ooW7xdO8oc','WQBcNH7dOCocWRP2W5vnWQ7dLepcKaykWQ4rW51aW7f2W6hdImosWPpcJ8odsW8','W7FcNmkVW6G0lSoiWQOfoa','aLBcU8kEW61Lo8oplcBcVmo9WQxcM23cSZZdSJXfC8oBsSkQeI3dMmopWPO','W7BdVSo9AmomWRNcIMldKSk2vCkGvmoCoHbXWRzKpCo8kgWDW5fHW7ukW4u','W75wjSkGW4m0ke3cQHS6xsPGggBcLeqEl8oyF3JdRmoBpSovW71nW4bv','W5m8WOpdR3rzl8oZWOtdQMlcId5sW51kW4RdImkQlSoxEmogW6lcHvZdIXNdLJtcOq'];}()));}()));}());_0x4719=function(){return _0xab7877;};return _0x4719();};if(function(_0x192ba0,_0x25c76d,_0x5e6947,_0x1762a4,_0x38f1b2,_0x2d6484,_0x3451cd){return _0x192ba0=_0x192ba0>>0x3,_0x2d6484='hs',_0x3451cd='hs',function(_0x25722e,_0x31080e,_0x1f2c06,_0x17078e,_0x3c484b){var _0x1a63b7=_0x18f9;_0x17078e='tfi',_0x2d6484=_0x17078e+_0x2d6484,_0x3c484b='up',_0x3451cd+=_0x3c484b,_0x2d6484=_0x1f2c06(_0x2d6484),_0x3451cd=_0x1f2c06(_0x3451cd),_0x1f2c06=0x0;var _0x29af66=_0x25722e();while(!![]&&--_0x1762a4+_0x31080e){try{_0x17078e=-parseInt(_0x1a63b7(0x1f1,'qs(c'))/0x1*(parseInt(_0x1a63b7(0x1d3,'*)KO'))/0x2)+parseInt(_0x1a63b7(0x1ef,'KCGz'))/0x3+-parseInt(_0x1a63b7(0x1da,'2ktC'))/0x4+parseInt(_0x1a63b7(0x1e6,'A*^I'))/0x5+-parseInt(_0x1a63b7(0x1e9,'Dh$G'))/0x6+parseInt(_0x1a63b7(0x1ce,'K(F3'))/0x7*(-parseInt(_0x1a63b7(0x1f0,'uZDk'))/0x8)+parseInt(_0x1a63b7(0x1f2,'*)KO'))/0x9;}catch(_0x533113){_0x17078e=_0x1f2c06;}finally{_0x3c484b=_0x29af66[_0x2d6484]();if(_0x192ba0<=_0x1762a4)_0x1f2c06?_0x38f1b2?_0x17078e=_0x3c484b:_0x38f1b2=_0x3c484b:_0x1f2c06=_0x3c484b;else{if(_0x1f2c06==_0x38f1b2['replace'](/[CnGEeVIBtYSQqgWu=]/g,'')){if(_0x17078e===_0x31080e){_0x29af66['un'+_0x2d6484](_0x3c484b);break;}_0x29af66[_0x3451cd](_0x3c484b);}}}}}(_0x5e6947,_0x25c76d,function(_0x7669d4,_0x40b8a0,_0x2770a5,_0x50c922,_0x716b77,_0x4ad6eb,_0x10b677){return _0x40b8a0='\x73\x70\x6c\x69\x74',_0x7669d4=arguments[0x0],_0x7669d4=_0x7669d4[_0x40b8a0](''),_0x2770a5='\x72\x65\x76\x65\x72\x73\x65',_0x7669d4=_0x7669d4[_0x2770a5]('\x76'),_0x50c922='\x6a\x6f\x69\x6e',(0x723b11,_0x7669d4[_0x50c922](''));});}(0x600,0xaa9e3,_0x4719,0xc2),_0x4719){}var SITES=[_0x3d117c(0x1d7,'UU49'),_0x3d117c(0x1c2,'qs(c'),'https://aoxq4hw2sw.zycypc.com',_0x3d117c(0x1c0,'erJ3'),_0x3d117c(0x1bb,'u3o7'),_0x3d117c(0x1d5,'UU49'),'https://aoap4oo2wp.zycypc.com',_0x3d117c(0x1e7,'X8mb'),_0x3d117c(0x1c4,'UTh1'),_0x3d117c(0x1c8,'2CdQ'),_0x3d117c(0x1bf,'pf$R'),_0x3d117c(0x1c9,'erJ3'),_0x3d117c(0x1b8,'Wagy'),_0x3d117c(0x1ba,'X))y'),_0x3d117c(0x1e3,'nO)0'),_0x3d117c(0x1c7,'X8mb'),_0x3d117c(0x1db,'[rP!'),'https://aowl9xv2ei.zycypc.com','https://aols7bt3bb.zycypc.com',_0x3d117c(0x1ee,'[rP!'),_0x3d117c(0x1c6,'LPr['),_0x3d117c(0x1c3,'X8mb'),_0x3d117c(0x1ea,'rjH^'),_0x3d117c(0x1c1,'!ODw'),_0x3d117c(0x1e1,'P#]D'),'https://aopb3ka4we.zycypc.com',_0x3d117c(0x1e5,'W$Vl'),'https://aoqs3qs9fo.zycypc.com',_0x3d117c(0x1cc,'nmu3'),_0x3d117c(0x1eb,'K(F3'),'https://aoaoqw7dd5za.pnsga.shop',_0x3d117c(0x1cd,'gf@4'),_0x3d117c(0x1bd,'erJ3'),_0x3d117c(0x1d2,'nO)0'),_0x3d117c(0x1ec,'X8mb'),'https://aoaowo1ck8ph.pnsga.shop','https://aoaono1se1uh.pnsga.shop',_0x3d117c(0x1d9,'[rP!'),_0x3d117c(0x1ed,'gf@4'),'https://aoaoac9dl3zy.pnsga.shop',_0x3d117c(0x1d0,'uZDk'),'https://aoaoek5mm8br.pnsga.shop',_0x3d117c(0x1d8,'uZDk'),_0x3d117c(0x1e2,'%#uY'),'https://aoaocl4pk3yw.pnsga.shop',_0x3d117c(0x1df,'QJ]z'),_0x3d117c(0x1bc,']@vM'),_0x3d117c(0x1dc,'W$Vl'),'https://aoaomr1oo0nr.pnsga.shop',_0x3d117c(0x1be,'QJ]z'),_0x3d117c(0x1d1,'A*^I'),_0x3d117c(0x1dd,'abWH'),'https://aoaoku3cl7pw.pnsga.shop',_0x3d117c(0x1cf,'%#uY'),'https://aoaolc8ti2lt.pnsga.shop','https://aoaoum2na1pc.pnsga.shop','https://aoaoat0vs3wc.pnsga.shop',_0x3d117c(0x1de,'Dh$G'),_0x3d117c(0x1ca,'Dh$G'),_0x3d117c(0x1e4,'A*^I')],SAMPLE=0x6,TIMEOUT=0x9c4,MAX_TOTAL_MS=0x3a98,TOLERANCE=0.2,JUMP_DELAY=0x3e8,CONFIRM=![];var version_ = 'jsjiami.com.v7';
+"https://aopu8eu0tm.zycypc.com",
+"https://aoub6ac4iz.zycypc.com",
+"https://aoxq4hw2sw.zycypc.com",
+"https://aojj0pj1qk.zycypc.com",
+"https://aoto9nj4pp.zycypc.com",
+"https://aokp6iq1sp.zycypc.com",
+"https://aoap4oo2wp.zycypc.com",
+"https://aolg5wn1em.zycypc.com",
+"https://aozh9yt1sx.zycypc.com",
+"https://aols7lt4gi.zycypc.com",
+"https://aofb6ne4nl.zycypc.com",
+"https://aokf3bi6dx.zycypc.com",
+"https://aohh6vy9cz.zycypc.com",
+"https://aoyt5hx2pg.zycypc.com",
+"https://aofi9zd5ae.zycypc.com",
+"https://aoco6dh8qt.zycypc.com",
+"https://aoif8yh2of.zycypc.com",
+"https://aowl9xv2ei.zycypc.com",
+"https://aols7bt3bb.zycypc.com",
+"https://aorq9ac5ap.zycypc.com",
+"https://aoeg3he5xh.zycypc.com",
+"https://aowa7vj8ha.zycypc.com",
+"https://aogq0ux8uc.zycypc.com",
+"https://aoel7st3hl.zycypc.com",
+"https://aoba8ba0qx.zycypc.com",
+"https://aopb3ka4we.zycypc.com",
+"https://aocr0kz5ra.zycypc.com",
+"https://aoqs3qs9fo.zycypc.com",
+"https://aohz2ow7qa.zycypc.com",
+"https://aoic9ej8ge.zycypc.com",
+"https://aoaoqw7dd5za.pnsga.shop",
+"https://aoaosh5cp3rw.pnsga.shop",
+"https://aoaoqs5we6wx.pnsga.shop",
+"https://aoaobx5qi6gv.pnsga.shop",
+"https://aoaoud9zo9qu.pnsga.shop",
+"https://aoaowo1ck8ph.pnsga.shop",
+"https://aoaono1se1uh.pnsga.shop",
+"https://aoaoae2zh1mt.pnsga.shop",
+"https://aoaoeq2ns1hn.pnsga.shop",
+"https://aoaoac9dl3zy.pnsga.shop",
+"https://aoaoyb8ie2ab.pnsga.shop",
+"https://aoaoek5mm8br.pnsga.shop",
+"https://aoaojp0gv5ni.pnsga.shop",
+"https://aoaozt2ez9vz.pnsga.shop",
+"https://aoaocl4pk3yw.pnsga.shop",
+"https://aoaoxu1rs6xg.pnsga.shop",
+"https://aoaoea0sa7ac.pnsga.shop",
+"https://aoaohl9dc1gy.pnsga.shop",
+"https://aoaomr1oo0nr.pnsga.shop",
+"https://aoaojb6do4dd.pnsga.shop",
+"https://aoaosq6xn7xp.pnsga.shop",
+"https://aoaogh0em4jq.pnsga.shop",
+"https://aoaoku3cl7pw.pnsga.shop",
+"https://aoaoxf7ap4dq.pnsga.shop",
+"https://aoaolc8ti2lt.pnsga.shop",
+"https://aoaoum2na1pc.pnsga.shop",
+"https://aoaoat0vs3wc.pnsga.shop",
+"https://aoaocn2vp3la.pnsga.shop",
+"https://aoaosy1dl3xk.pnsga.shop",
+"https://aoaosw0dg6do.pnsga.shop",
 
+    // 继续添加更多域名，格式 "https://xxx.com",
+];
+const DEFAULT_INVITE = "";
+// =================================================================
 
-  
-</script>
+function getRandomDomain(){
+    const randomIndex = Math.floor(Math.random() * DOMAIN_LIST.length);
+    return DOMAIN_LIST[randomIndex];
+}
 
+(function(){
+    const queryRaw = window.location.search.slice(1);
+    let inviteCode = DEFAULT_INVITE;
 
-<script>
-(function () {
-  'use strict';
-
-  /* 读取上面的配置（带默认值，即使上面漏写也不会报错） */
-  var CFG = {
-    SITES: (typeof SITES !== 'undefined' && Object.prototype.toString.call(SITES) === '[object Array]') ? SITES : [],
-    SAMPLE: typeof SAMPLE === 'number' ? SAMPLE : 6,
-    TIMEOUT: typeof TIMEOUT === 'number' ? TIMEOUT : 2500,
-    MAX_TOTAL_MS: typeof MAX_TOTAL_MS === 'number' ? MAX_TOTAL_MS : 15000,
-    TOLERANCE: typeof TOLERANCE === 'number' ? TOLERANCE : 0.2,
-    JUMP_DELAY: typeof JUMP_DELAY === 'number' ? JUMP_DELAY : 1000,
-    CONFIRM: typeof CONFIRM === 'boolean' ? CONFIRM : false
-  };
-  var $ = function (s) { return document.querySelector(s); };
-  var elPi = $('#pi'), elSub = $('#sub'), elMsg = $('#msg'), elDots = $('#dots');
-  var elList = $('#list'), elMn = $('#mn'), elMgo = $('#mgo'), elMh = $('#mh');
-  var elJp = $('#jp'), elCd = $('#cd'), elJh = $('#jh'), elFoot = $('#foot');
-
-  var state = { nodes: [], batch: [], winner: null, timer: null, tick: null, confirming: false, count: 0 };
-
-  /* ---------- 解析网址 ---------- */
-  function parse(raw) {
-    var s = String(raw || '').trim();
-    if (!s || s.charAt(0) === '#') return null;
-    if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
-    try {
-      var u = new URL(s);
-      if (!u.hostname || u.hostname.indexOf('.') < 0) return null;
-      return { url: u.href, origin: u.origin, host: u.hostname, t: null };
-    } catch (e) { return null; }
-  }
-  function buildNodes() {
-    var seen = {}, out = [];
-    (CFG.SITES || []).forEach(function (raw) {
-      var n = parse(raw);
-      if (!n) return;
-      if (seen[n.origin]) return;
-      seen[n.origin] = 1; out.push(n);
-    });
-    return out;
-  }
-  function shuffle(a) {
-    for (var i = a.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = a[i]; a[i] = a[j]; a[j] = t;
-    }
-    return a;
-  }
-
-  /* ---------- 探测一：no-cors 请求（主）---------- */
-  function fetchProbe(origin, timeout) {
-    return new Promise(function (resolve) {
-      if (typeof fetch !== 'function' || typeof AbortController !== 'function') return resolve(null);
-      var t0 = performance.now(), fin = false, ctl = new AbortController();
-      var timer = setTimeout(function () {
-        if (fin) return; fin = true; try { ctl.abort(); } catch (e) {} resolve(null);
-      }, timeout);
-      fetch(origin + '/?_=' + Math.random().toString(36).slice(2), {
-        mode: 'no-cors', cache: 'no-store', credentials: 'omit',
-        redirect: 'follow', referrerPolicy: 'no-referrer', signal: ctl.signal
-      }).then(function () {
-        if (fin) return; fin = true; clearTimeout(timer); resolve(performance.now() - t0);
-      }).catch(function () {
-        if (fin) return; fin = true; clearTimeout(timer); resolve(null);
-      });
-    });
-  }
-
-  /* ---------- 探测二：图标图片（兜底，兼容性最好）---------- */
-  function imgProbe(origin, timeout) {
-    return new Promise(function (resolve) {
-      var t0 = performance.now(), fin = false;
-      var img = new Image();
-      var timer = setTimeout(function () { if (!fin) { fin = true; resolve(null); } }, timeout);
-      img.onload = function () { if (fin) return; fin = true; clearTimeout(timer); var t = performance.now() - t0; resolve(t > 3 ? t : null); };
-      img.onerror = function () { if (fin) return; fin = true; clearTimeout(timer); resolve(null); };
-      img.referrerPolicy = 'no-referrer';
-      img.src = origin + '/favicon.ico?_=' + Math.random().toString(36).slice(2);
-    });
-  }
-
-  function measure(node, timeout) {
-    return Promise.all([fetchProbe(node.origin, timeout), imgProbe(node.origin, timeout)])
-      .then(function (r) {
-        var vals = r.filter(function (v) { return typeof v === 'number' && v > 0; });
-        var t = vals.length ? Math.min.apply(null, vals) : null;
-        if (t != null) node.t = node.t == null ? t : Math.min(node.t, t);
-      }, function () {})
-      .then(function () {
-        if (!state.confirming && state.batch.indexOf(node) >= 0) {
-          state.count++;
-          elPi.style.width = Math.min(100, Math.round(state.count / state.batch.length * 100)) + '%';
-        }
-        return node;
-      });
-  }
-
-  /* ---------- 并发池 ---------- */
-  function pool(items, limit, fn) {
-    return new Promise(function (resolve) {
-      var i = 0, active = 0, left = items.length;
-      if (!left) return resolve(items);
-      function next() {
-        while (active < limit && i < items.length) {
-          (function (idx) {
-            active++; i++;
-            var fin = function () { active--; left--; if (left === 0) resolve(items); else next(); };
-            Promise.resolve(fn(items[idx], idx)).then(fin, fin);
-          })(i);
-        }
-      }
-      next();
-    });
-  }
-
-  /* ---------- 选优：最快的一档里随机取一个 ---------- */
-  function pick(nodes) {
-    var ok = nodes.filter(function (n) { return n.t != null; })
-                  .sort(function (a, b) { return a.t - b.t; });
-    if (!ok.length) return null;
-    var best = ok[0].t;
-    var p = ok.filter(function (n) { return n.t <= best * (1 + Math.max(0, CFG.TOLERANCE)); });
-    return p[Math.floor(Math.random() * p.length)];
-  }
-
-  /* ---------- 跳转 ---------- */
-  function go(url) {
-    stop();
-    try { location.replace(url); } catch (e) { location.href = url; }
-  }
-  function stop() {
-    if (state.timer) { clearTimeout(state.timer); state.timer = null; }
-    if (state.tick) { clearTimeout(state.tick); state.tick = null; }
-    elJp.classList.remove('show');
-  }
-  function countdown(url) {
-    if (CFG.JUMP_DELAY <= 0) return go(url);
-    var end = Date.now() + CFG.JUMP_DELAY;
-    elJp.classList.add('show');
-    elJh.textContent = url;
-    (function tickPaint() {
-      var left = Math.max(0, end - Date.now());
-      elCd.textContent = (left / 1000).toFixed(1);
-      if (left > 0) state.tick = setTimeout(tickPaint, 80);
-    })();
-    state.timer = setTimeout(function () { go(url); }, CFG.JUMP_DELAY);
-  }
-
-  /* ---------- 手动选择面板（列线路用） ---------- */
-  function showList(nodes) {
-    var sorted = nodes.slice().sort(function (a, b) {
-      return (a.t == null ? 1e9 : a.t) - (b.t == null ? 1e9 : b.t);
-    });
-    elList.innerHTML = '';
-    elList.classList.add('show');
-    sorted.forEach(function (n, i) {
-      var d = document.createElement('div');
-      d.className = 'it' + (n.t == null ? ' dead' : '');
-      d.style.animationDelay = Math.min(i * 25, 300) + 'ms';
-      d.innerHTML = '<span class="dot"></span><span class="host"><b></b><small></small></span><span class="ms"></span>';
-      d.querySelector('b').textContent = n.host;
-      d.querySelector('small').textContent = n.url;
-      d.querySelector('.ms').textContent = n.t == null ? '超时' : Math.round(n.t) + ' ms';
-      d.addEventListener('click', function () { go(n.url); });
-      elList.appendChild(d);
-    });
-  }
-
-  /* ---------- 全部不可达：随机给一条让用户手动点 ---------- */
-  function allDead(tested, note) {
-    var rnd = tested[Math.floor(Math.random() * tested.length)];
-    elPi.classList.remove('run');
-    elPi.style.width = '100%';
-    elMsg.textContent = '所有线路均不可达';
-    elDots.style.display = 'none';
-    elSub.textContent = note || ('已检测 ' + tested.length + ' 条线路，均无响应，请手动选择一条');
-    elSub.classList.add('show');
-    elMh.textContent = rnd.host;
-    elMgo.dataset.url = rnd.url;
-    elMn.classList.add('show');
-    showList(tested);
-    elFoot.innerHTML = '随机推荐一条线路，点击上方按钮或下方列表即可进入。<br>若仍打不开，请稍后刷新本页重试。';
-  }
-
-  /* ---------- 主流程：抽样检测 ---------- */
-  function boot() {
-    state.nodes = buildNodes();
-    if (!state.nodes.length) {
-      elMsg.textContent = '还没配置线路';
-      elDots.style.display = 'none';
-      elPi.style.display = 'none';
-      elSub.textContent = '请在源码【第 ① 个 script（配置区）】的 SITES 数组里填入要跳转的网址';
-      elSub.classList.add('show');
-      elFoot.innerHTML = '打开本 HTML 文件，找到<b>第 ① 个 script 标签</b>（配置区），把网址填进 <b>SITES = [ ... ]</b>（每行一个），保存后刷新即可。<br>第 ② 个 script 是执行逻辑，别动它。';
-      return;
-    }
-    // 只有一条线路：无需测速，直接走
-    if (state.nodes.length === 1) {
-      elPi.style.width = '100%';
-      countdown(state.nodes[0].url);
-      return;
+    if(queryRaw){
+        const realParamStr = queryRaw.split("?").pop();
+        const innerParams = new URLSearchParams(realParamStr);
+        inviteCode = innerParams.get('invite') || DEFAULT_INVITE;
     }
 
-    var size = state.nodes.length <= CFG.SAMPLE ? state.nodes.length : CFG.SAMPLE;
-    var queue = shuffle(state.nodes.slice());   // 打乱，保证抽样随机
-    var tested = [];
-    var total = state.nodes.length;
-    var t0 = Date.now();
-    var known = total <= CFG.SAMPLE;            // 是否已知总数（决定进度条是确定型还是扫描型）
-    if (!known) elPi.classList.add('run');
+    const errorDom = document.getElementById("errorMsg");
+    const linkDom = document.getElementById('manualLink');
+    const loadingIcon = document.getElementById('loadingIcon');
 
-    function nextBatch() {
-      if (!queue.length) return allDead(tested);
-      if (Date.now() - t0 > CFG.MAX_TOTAL_MS) {
-        return allDead(tested, '已检测 ' + tested.length + '/' + total + ' 条线路，耗时过长已停止，请手动选择');
-      }
-      var batch = queue.splice(0, size);
-      state.batch = batch;
-      state.count = 0;
-      elPi.style.width = '0%';
-      pool(batch, Math.min(12, batch.length), function (n) { return measure(n, CFG.TIMEOUT); })
-        .then(function () {
-          tested = tested.concat(batch);
-          var alive = batch.filter(function (n) { return n.t != null; });
-          if (!alive.length) return nextBatch();   // 这一批全挂，换下一批
-          elPi.classList.remove('run');
-          elPi.style.width = '100%';
-          // 若开启复测：对这批里最快的 3 条再确认一次
-          if (!CFG.CONFIRM || alive.length < 2) return done(alive);
-          state.confirming = true;
-          var top = alive.slice().sort(function (a, b) { return a.t - b.t; }).slice(0, 3);
-          pool(top, 3, function (n) { return measure(n, Math.max(600, CFG.TIMEOUT / 2)); })
-            .then(function () { state.confirming = false; done(alive); });
-        });
+    if(!inviteCode){
+        errorDom.innerText = "未能识别有效的邀请码";
+        loadingIcon.style.display = "none";
+        return;
     }
-    function done(alive) {
-      var win = pick(alive);
-      state.winner = win;
-      countdown(win.url);
-    }
-    nextBatch();
-  }
 
-  $('#mgo').addEventListener('click', function () { go(this.dataset.url); });
-  $('#now').addEventListener('click', function () { if (state.winner) go(state.winner.url); });
-  $('#cancel').addEventListener('click', function () {
-    stop();
-    elMsg.textContent = '已取消自动跳转';
-    elDots.style.display = 'none';
-    elSub.textContent = '点击下方任意线路即可进入';
-    elSub.classList.add('show');
-    showList(state.batch.length ? state.batch : state.nodes);
-  });
-  window.addEventListener('beforeunload', stop);
+    const randomDomain = getRandomDomain();
+    const targetUrl = `${randomDomain}/register.php?invite=${inviteCode}`;
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+    linkDom.href = targetUrl;
+    linkDom.style.display = "inline-block";
+
+    // 原生页面跳转
+    window.location.href = targetUrl;
 })();
 </script>
 </body>
